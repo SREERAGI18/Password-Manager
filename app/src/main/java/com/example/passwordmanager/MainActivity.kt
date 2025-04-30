@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import com.example.passwordmanager.navigation.HomeGraph
+import com.example.passwordmanager.ui.theme.MainBg
 import com.example.passwordmanager.ui.theme.PasswordManagerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,16 +25,10 @@ class MainActivity : ComponentActivity() {
             PasswordManagerTheme {
                 val navController = rememberNavController()
 
-                Scaffold(
-                    containerColor = Color.White
+                Box(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(it)
-                    ) {
-                        HomeGraph(navController)
-                    }
+                    HomeGraph(navController)
                 }
             }
         }
