@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.passwordmanager.data.model.PasswordEntry
+import com.example.passwordmanager.encryption.EncryptionUtils.decrypt
 import com.example.passwordmanager.ui.components.CommonTextField
 import com.example.passwordmanager.ui.theme.TextFieldHintColor
 import com.example.passwordmanager.utils.TextStyles
@@ -25,7 +28,12 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @Composable
-fun AddAccountSheet(onSubmit: (String, String, String) -> Unit) {
+fun AddAccountSheet(
+    isEditMode:Boolean,
+    entry: PasswordEntry?,
+    onSubmit: (String, String, String) -> Unit,
+    onUpdateClick: (String) -> Unit
+) {
     var accountType by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -33,6 +41,18 @@ fun AddAccountSheet(onSubmit: (String, String, String) -> Unit) {
     var errorAccountType by remember { mutableStateOf("") }
     var errorUsername by remember { mutableStateOf("") }
     var errorPassword by remember { mutableStateOf("") }
+
+    LaunchedEffect(isEditMode) {
+        if(isEditMode) {
+            entry?.let {
+                val decryptedPassword = decrypt(it.encryptedPassword, it.iv)
+
+                accountType = it.account
+                username = it.username
+                password = decryptedPassword
+            }
+        }
+    }
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         CommonTextField(
@@ -63,6 +83,7 @@ fun AddAccountSheet(onSubmit: (String, String, String) -> Unit) {
                 password = it
                 errorPassword = ""
             },
+            isPassword = true,
             labelText = "Password",
             labelStyle = TextStyles.Roboto.medium(size = 13, color = TextFieldHintColor),
             errorMessage = errorPassword
@@ -82,7 +103,11 @@ fun AddAccountSheet(onSubmit: (String, String, String) -> Unit) {
                     return@Button
                 }
 
-                onSubmit(accountType, username, password)
+                if(isEditMode) {
+                    onUpdateClick(password)
+                } else {
+                    onSubmit(accountType, username, password)
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,8 +118,13 @@ fun AddAccountSheet(onSubmit: (String, String, String) -> Unit) {
             ),
             shape = RoundedCornerShape(20.dp)
         ) {
+            val text = if(isEditMode) {
+                "Update"
+            } else {
+                "Add New Account"
+            }
             Text(
-                text = "Add New Account",
+                text = text,
                 style = TextStyles.Poppins.bold(size = 16, color = Color.White)
             )
         }

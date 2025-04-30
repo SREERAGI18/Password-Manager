@@ -20,19 +20,11 @@ object EncryptionUtils {
     fun encrypt(text: String): Pair<String, String> {
         try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.ENCRYPT_MODE, getSecretKey())  // Let Keystore generate IV
+            val iv = cipher.iv
 
-            // Generate a random IV before encryption
-            val iv = ByteArray(IV_SIZE)
-            SecureRandom().nextBytes(iv)
-
-            // Initialize the cipher with the IV and secret key
-            val spec = GCMParameterSpec(128, iv)
-            cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(), )
-
-            // Perform encryption
             val encryptedBytes = cipher.doFinal(text.toByteArray(Charsets.UTF_8))
 
-            // Return the encrypted data and IV as Base64
             return Pair(
                 Base64.encodeToString(encryptedBytes, Base64.NO_WRAP),
                 Base64.encodeToString(iv, Base64.NO_WRAP)

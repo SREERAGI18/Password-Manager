@@ -42,7 +42,15 @@ class PasswordViewModel @Inject constructor(
         dao.delete(entry)
     }
 
-//    fun updatePassword(entry: PasswordEntry, newPass: String) = viewModelScope.launch(Dispatchers.IO) {
-//        dao.update(entry.copy(passwordEncrypted = EncryptionUtils.encrypt(newPass)))
-//    }
+    fun updatePassword(entry: PasswordEntry?, newPass: String) = viewModelScope.launch(Dispatchers.IO) {
+        if(entry == null) return@launch
+
+        val (encrypted, iv) = encrypt(newPass)
+        dao.update(
+            entry.copy(
+                encryptedPassword = encrypted,
+                iv = iv
+            )
+        )
+    }
 }

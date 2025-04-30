@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.passwordmanager.data.dao.PasswordDao
 import com.example.passwordmanager.data.model.PasswordEntry
 
-@Database(entities = [PasswordEntry::class], version = 1)
+@Database(entities = [PasswordEntry::class], version = 1, exportSchema = false)
 abstract class PasswordDatabase : RoomDatabase() {
 
     companion object {

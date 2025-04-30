@@ -18,6 +18,9 @@ interface PasswordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entry: PasswordEntry)
 
+    @Update
+    suspend fun update(entry: PasswordEntry)
+
     @Delete
     suspend fun delete(entry: PasswordEntry)
 }

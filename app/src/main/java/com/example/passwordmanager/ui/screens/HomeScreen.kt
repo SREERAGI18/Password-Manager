@@ -2,6 +2,7 @@ package com.example.passwordmanager.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,19 +52,19 @@ import com.example.passwordmanager.ui.theme.LightGrey
 import com.example.passwordmanager.ui.theme.MainBg
 import com.example.passwordmanager.ui.theme.SecondaryTextColor
 import com.example.passwordmanager.utils.TextStyles
+import com.example.passwordmanager.utils.noRippleClick
 import com.example.passwordmanager.viewmodel.PasswordViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
     val viewModel:PasswordViewModel = hiltViewModel()
     val passwords by viewModel.passwords.collectAsStateWithLifecycle()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(true) }
+    var isEditMode by remember { mutableStateOf(false) }
     var selectedEntry by remember { mutableStateOf<PasswordEntry?>(null) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -119,46 +120,14 @@ fun HomeScreen() {
                 modifier = Modifier.weight(1f)
             ) {
                 items(passwords) { entry ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(66.dp)
-                            .background(
-                                color = Color.White,
-                                shape = CircleShape
-                            )
-                            .padding(
-                                horizontal = 20.dp
-                            )
-                            .clickable {
-                                selectedEntry = entry
-                                isAddMode = false
-                                showBottomSheet = true
-                            },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = entry.account,
-                            style = TextStyles.SfProDisplay.semiBold(size = 20),
-                            modifier = Modifier.widthIn(max = (screenWidth*0.5).dp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "*******",
-                            style = TextStyles.SfProDisplay.semiBold(
-                                size = 20,
-                                color = SecondaryTextColor
-                            )
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Image(
-                            painter = painterResource(R.drawable.arrow_right),
-                            contentDescription = "Arrow Right Icon"
-                        )
-                    }
+                    ItemPasswordEntry(
+                        entry = entry,
+                        onClick = {
+                            selectedEntry = entry
+                            isAddMode = false
+                            showBottomSheet = true
+                        }
+                    )
                 }
             }
         }
@@ -189,17 +158,27 @@ fun HomeScreen() {
 //                        )
 //                )
                 if (isAddMode) {
-                    AddAccountSheet { account, username, password ->
-                        viewModel.addPassword(account, username, password)
-                        coroutineScope.launch { sheetState.hide() }
-                        showBottomSheet = false
-                    }
+                    AddAccountSheet(
+                        isEditMode = isEditMode,
+                        entry = selectedEntry,
+                        onSubmit = { account, username, password ->
+                            viewModel.addPassword(account, username, password)
+                            coroutineScope.launch { sheetState.hide() }
+                            showBottomSheet = false
+                        },
+                        onUpdateClick = { newPass ->
+                            viewModel.updatePassword(selectedEntry, newPass)
+                            coroutineScope.launch { sheetState.hide() }
+                            showBottomSheet = false
+                        }
+                    )
                 } else {
                     selectedEntry?.let { entry ->
                         AccountDetailsSheet(
                             entry = entry,
                             onEdit = {
                                 isAddMode = true
+                                isEditMode = true
                             },
                             onDelete = {
                                 viewModel.deletePassword(entry)
@@ -211,5 +190,57 @@ fun HomeScreen() {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ItemPasswordEntry(
+    entry: PasswordEntry,
+    onClick:() -> Unit
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(66.dp)
+            .background(
+                color = Color.White,
+                shape = CircleShape
+            )
+            .border(
+                width = 1.dp,
+                shape = CircleShape,
+                color = Color(0xFFEDEDED)
+            )
+            .padding(
+                horizontal = 20.dp
+            )
+            .noRippleClick {
+                onClick.invoke()
+            },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = entry.account,
+            style = TextStyles.SfProDisplay.semiBold(size = 20),
+            modifier = Modifier.widthIn(max = (screenWidth*0.5).dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = "*******",
+            style = TextStyles.SfProDisplay.semiBold(
+                size = 20,
+                color = SecondaryTextColor
+            )
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Image(
+            painter = painterResource(R.drawable.arrow_right),
+            contentDescription = "Arrow Right Icon"
+        )
     }
 }
