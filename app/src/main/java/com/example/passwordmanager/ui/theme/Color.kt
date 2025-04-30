@@ -15,3 +15,5 @@ val MainTextColor = Color(0xFF333333)
 val SecondaryTextColor = Color(0xFFC6C6C6)
 
 val FABColor = Color(0xFF3F7DE3)
+val TextFieldHintColor = Color(0xFFCCCCCC)
+val LightGrey = Color(0xFFF9F9F9)

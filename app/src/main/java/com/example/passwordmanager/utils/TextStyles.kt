@@ -65,4 +65,120 @@ object TextStyles {
             )
         }
     }
+
+    object Poppins {
+        fun light(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Light
+            )
+        }
+
+        fun regular(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Normal
+            )
+        }
+
+        fun medium(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.sp
+            )
+        }
+
+        fun semiBold(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        fun bold(size: Int, color: Color = MainTextColor, alpha: Float = 100f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
+    object Roboto {
+        fun light(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Light
+            )
+        }
+
+        fun regular(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Normal
+            )
+        }
+
+        fun medium(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.sp
+            )
+        }
+
+        fun semiBold(size: Int, color: Color = MainTextColor, alpha: Float = 1f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        fun bold(size: Int, color: Color = MainTextColor, alpha: Float = 100f): TextStyle {
+            return TextStyle(
+                fontSize = size.sp,
+//            fontFamily = Albert,
+                color = color.copy(
+                    alpha = alpha
+                ),
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,26 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,16 +37,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.passwordmanager.R
 import com.example.passwordmanager.data.model.PasswordEntry
 import com.example.passwordmanager.ui.theme.FABColor
+import com.example.passwordmanager.ui.theme.LightGrey
 import com.example.passwordmanager.ui.theme.MainBg
 import com.example.passwordmanager.ui.theme.SecondaryTextColor
 import com.example.passwordmanager.utils.TextStyles
@@ -60,6 +57,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
     val viewModel:PasswordViewModel = hiltViewModel()
     val passwords by viewModel.passwords.collectAsStateWithLifecycle()
 
@@ -141,7 +140,10 @@ fun HomeScreen() {
                     ) {
                         Text(
                             text = entry.account,
-                            style = TextStyles.SfProDisplay.semiBold(size = 20)
+                            style = TextStyles.SfProDisplay.semiBold(size = 20),
+                            modifier = Modifier.widthIn(max = (screenWidth*0.5).dp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
@@ -165,27 +167,47 @@ fun HomeScreen() {
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
-            sheetState = sheetState
+            sheetState = sheetState,
+            containerColor = LightGrey,
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp
+            ),
+//            dragHandle = null
         ) {
-            if (isAddMode) {
-                AddAccountSheet { account, username, password ->
-                    viewModel.addPassword(account, username, password)
-                    coroutineScope.launch { sheetState.hide() }
-                    showBottomSheet = false
-                }
-            } else {
-                selectedEntry?.let { entry ->
-                    AccountDetailsSheet(
-                        entry = entry,
-                        onEdit = {
-                            isAddMode = true
-                        },
-                        onDelete = {
-                            viewModel.deletePassword(entry)
-                            coroutineScope.launch { sheetState.hide() }
-                            showBottomSheet = false
-                        }
-                    )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+//                Box(
+//                    modifier = Modifier
+//                        .height(4.dp)
+//                        .widthIn(46.dp)
+//                        .padding(vertical = 8.dp)
+//                        .background(
+//                            color = Color(0xFFE3E3E3),
+//                            shape = CircleShape
+//                        )
+//                )
+                if (isAddMode) {
+                    AddAccountSheet { account, username, password ->
+                        viewModel.addPassword(account, username, password)
+                        coroutineScope.launch { sheetState.hide() }
+                        showBottomSheet = false
+                    }
+                } else {
+                    selectedEntry?.let { entry ->
+                        AccountDetailsSheet(
+                            entry = entry,
+                            onEdit = {
+                                isAddMode = true
+                            },
+                            onDelete = {
+                                viewModel.deletePassword(entry)
+                                coroutineScope.launch { sheetState.hide() }
+                                showBottomSheet = false
+                            }
+                        )
+                    }
                 }
             }
         }
