@@ -17,12 +17,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.passwordmanager.data.model.PasswordEntry
 import com.example.passwordmanager.encryption.EncryptionUtils.decrypt
 import com.example.passwordmanager.ui.components.CommonTextField
+import com.example.passwordmanager.ui.theme.GreenColor
+import com.example.passwordmanager.ui.theme.RedColor
 import com.example.passwordmanager.ui.theme.TextFieldHintColor
+import com.example.passwordmanager.ui.theme.YellowColor
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.ui.graphics.StrokeCap
 import com.example.passwordmanager.utils.TextStyles
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -88,7 +96,11 @@ fun AccountSheet(
             labelStyle = TextStyles.Roboto.medium(size = 13, color = TextFieldHintColor),
             errorMessage = errorPassword
         )
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+        if(password.isNotBlank()) {
+            PasswordStrengthMeter(password)
+            Spacer(modifier = Modifier.height(20.dp))
+        }
         Button(
             onClick = {
                 errorAccountType = accountType.validateAccountType()
@@ -130,6 +142,37 @@ fun AccountSheet(
         }
         Spacer(modifier = Modifier.height(20.dp))
     }
+}
+
+@Composable
+private fun PasswordStrengthMeter(password: String) {
+    val strength = calculatePasswordStrength(password)
+    val (color, label) = when (strength) {
+        in 0..2 -> RedColor to "Weak"
+        in 3..4 -> YellowColor to "Moderate"
+        else -> GreenColor to "Strong"
+    }
+
+    Column {
+        LinearProgressIndicator(
+            progress = strength / 5f,
+            color = color,
+            modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(4.dp)),
+            strokeCap = StrokeCap.Round
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = label, color = color, style = TextStyle(fontSize = 12.sp))
+    }
+}
+
+private fun calculatePasswordStrength(password: String): Int {
+    var score = 0
+    if (password.length >= 8) score++
+    if (password.any { it.isUpperCase() }) score++
+    if (password.any { it.isDigit() }) score++
+    if (password.any { !it.isLetterOrDigit() }) score++
+    if (password.length >= 12) score++
+    return score
 }
 
 private fun String.isValidEmail():Boolean {
