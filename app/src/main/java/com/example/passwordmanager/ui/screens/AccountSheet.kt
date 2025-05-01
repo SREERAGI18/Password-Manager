@@ -1,0 +1,245 @@
+package com.example.passwordmanager.ui.screens
+
+import android.text.TextUtils
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.passwordmanager.data.model.PasswordEntry
+import com.example.passwordmanager.encryption.EncryptionUtils.decrypt
+import com.example.passwordmanager.ui.components.CommonTextField
+import com.example.passwordmanager.ui.theme.GreenColor
+import com.example.passwordmanager.ui.theme.RedColor
+import com.example.passwordmanager.ui.theme.TextFieldHintColor
+import com.example.passwordmanager.ui.theme.YellowColor
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.StrokeCap
+import com.example.passwordmanager.utils.TextStyles
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+@Composable
+fun AccountSheet(
+    isEditMode:Boolean,
+    entry: PasswordEntry?,
+    onSubmit: (String, String, String) -> Unit,
+    onUpdateClick: (String, String, String) -> Unit,
+) {
+    var accountType by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    var errorAccountType by remember { mutableStateOf("") }
+    var errorUsername by remember { mutableStateOf("") }
+    var errorPassword by remember { mutableStateOf("") }
+
+    LaunchedEffect(isEditMode) {
+        if(isEditMode) {
+            entry?.let {
+                val decryptedPassword = decrypt(it.encryptedPassword, it.iv)
+
+                accountType = it.account
+                username = it.username
+                password = decryptedPassword
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier.padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CommonTextField(
+            value = accountType,
+            onValueChange = {
+                accountType = it
+                errorAccountType = ""
+            },
+            labelText = "Account Type",
+            labelStyle = TextStyles.Roboto.medium(size = 13, color = TextFieldHintColor),
+            errorMessage = errorAccountType
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        CommonTextField(
+            value = username,
+            onValueChange = {
+                username = it
+                errorUsername = ""
+            },
+            labelText = "Username/ Email",
+            labelStyle = TextStyles.Roboto.medium(size = 13, color = TextFieldHintColor),
+            errorMessage = errorUsername
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        CommonTextField(
+            value = password,
+            onValueChange = {
+                password = it
+                errorPassword = ""
+            },
+            isPassword = true,
+            labelText = "Password",
+            labelStyle = TextStyles.Roboto.medium(size = 13, color = TextFieldHintColor),
+            errorMessage = errorPassword
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        if(password.isNotBlank()) {
+            PasswordStrengthMeter(password)
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+        Button(
+            onClick = {
+                password = generatePassword()
+            },
+            modifier = Modifier.height(44.dp),
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.Black.copy(alpha = 0.2f),
+                containerColor = Color.Transparent,
+            ),
+        ) {
+            Text(
+                text = "Generate Password",
+                style = TextStyles.Poppins.bold(size = 16, color = Color.Black.copy(alpha = 0.2f))
+            )
+        }
+        Button(
+            onClick = {
+                errorAccountType = accountType.validateAccountType()
+                errorUsername = username.validateUserName()
+                errorPassword = password.validatePassword()
+
+                if(
+                    errorAccountType.isNotBlank() ||
+                    errorUsername.isNotBlank() ||
+                    errorPassword.isNotBlank()
+                ) {
+                    return@Button
+                }
+
+                if(isEditMode) {
+                    onUpdateClick(accountType, username, password)
+                } else {
+                    onSubmit(accountType, username, password)
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.White,
+                containerColor = Color.Black,
+            ),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            val text = if(isEditMode) {
+                "Update"
+            } else {
+                "Add New Account"
+            }
+            Text(
+                text = text,
+                style = TextStyles.Poppins.bold(size = 16, color = Color.White)
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+}
+
+@Composable
+private fun PasswordStrengthMeter(password: String) {
+    val strength = calculatePasswordStrength(password)
+    val (color, label) = when (strength) {
+        in 0..2 -> RedColor to "Weak"
+        in 3..4 -> YellowColor to "Moderate"
+        else -> GreenColor to "Strong"
+    }
+
+    Column {
+        LinearProgressIndicator(
+            progress = strength / 5f,
+            color = color,
+            modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(4.dp)),
+            strokeCap = StrokeCap.Round
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = label, color = color, style = TextStyle(fontSize = 12.sp))
+    }
+}
+
+private fun generatePassword(length: Int = 12): String {
+    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%^&*()-_=+"
+    return (1..length)
+        .map { chars.random() }
+        .joinToString("")
+}
+
+private fun calculatePasswordStrength(password: String): Int {
+    var score = 0
+    if (password.length >= 8) score++
+    if (password.any { it.isUpperCase() }) score++
+    if (password.any { it.isDigit() }) score++
+    if (password.any { !it.isLetterOrDigit() }) score++
+    if (password.length >= 12) score++
+    return score
+}
+
+private fun String.isValidEmail():Boolean {
+    if(trim().isEmpty()) return false
+
+    val pattern: Pattern
+    val EMAIL_PATTERN = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+    pattern = Pattern.compile(EMAIL_PATTERN)
+    val matcher: Matcher = pattern.matcher(this.trim())
+
+    return (!TextUtils.isEmpty(this.trim()) && matcher.matches())
+}
+
+private fun String.validateUserName():String {
+    return if(contains("@")) {
+        if(!isValidEmail()) {
+            "Please enter a valid email address."
+        } else {
+            ""
+        }
+    } else {
+        if(isNotBlank()) {
+            ""
+        } else {
+            "Username cannot be empty."
+        }
+    }
+}
+
+private fun String.validatePassword():String {
+    return if(isNotBlank()) {
+        ""
+    } else {
+        "Password cannot be empty."
+    }
+}
+
+private fun String.validateAccountType():String {
+    return if(isNotBlank()) {
+        ""
+    } else {
+        "Account type cannot be empty."
+    }
+}
