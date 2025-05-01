@@ -10,8 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import com.example.passwordmanager.encryption.EncryptedSharedPreferenceManager
+import com.example.passwordmanager.encryption.EncryptedSharedPreferenceManager.isPinSet
 import com.example.passwordmanager.navigation.HomeGraph
+import com.example.passwordmanager.navigation.Screens
 import com.example.passwordmanager.ui.theme.MainBg
 import com.example.passwordmanager.ui.theme.PasswordManagerTheme
 import dagger.hilt.android.AndroidEntryPoint

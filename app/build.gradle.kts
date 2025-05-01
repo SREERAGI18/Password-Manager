@@ -84,4 +84,5 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material:material:1.7.8")
+    implementation ("androidx.security:security-crypto:1.1.0-alpha07")
 }

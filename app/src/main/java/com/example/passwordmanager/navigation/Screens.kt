@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 object Screens {
     @Serializable
     object Home
+    @Serializable
+    object PinSet
+    @Serializable
+    object PinVerify
 }
