@@ -30,6 +30,7 @@ import com.example.passwordmanager.ui.theme.RedColor
 import com.example.passwordmanager.ui.theme.TextFieldHintColor
 import com.example.passwordmanager.ui.theme.YellowColor
 import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.StrokeCap
 import com.example.passwordmanager.utils.TextStyles
 import java.util.regex.Matcher
@@ -62,7 +63,10 @@ fun AccountSheet(
         }
     }
 
-    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+    Column(
+        modifier = Modifier.padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         CommonTextField(
             value = accountType,
             onValueChange = {
@@ -100,6 +104,21 @@ fun AccountSheet(
         if(password.isNotBlank()) {
             PasswordStrengthMeter(password)
             Spacer(modifier = Modifier.height(20.dp))
+        }
+        Button(
+            onClick = {
+                password = generatePassword()
+            },
+            modifier = Modifier.height(44.dp),
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.Black.copy(alpha = 0.2f),
+                containerColor = Color.Transparent,
+            ),
+        ) {
+            Text(
+                text = "Generate Password",
+                style = TextStyles.Poppins.bold(size = 16, color = Color.Black.copy(alpha = 0.2f))
+            )
         }
         Button(
             onClick = {
@@ -163,6 +182,13 @@ private fun PasswordStrengthMeter(password: String) {
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = label, color = color, style = TextStyle(fontSize = 12.sp))
     }
+}
+
+private fun generatePassword(length: Int = 12): String {
+    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%^&*()-_=+"
+    return (1..length)
+        .map { chars.random() }
+        .joinToString("")
 }
 
 private fun calculatePasswordStrength(password: String): Int {
