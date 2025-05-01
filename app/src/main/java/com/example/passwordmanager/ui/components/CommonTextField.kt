@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -39,7 +40,7 @@ fun CommonTextField(
     value: String,
     labelText: String,
     labelStyle: TextStyle,
-    onValueChanged: (String) -> Unit,
+    onValueChange: (String) -> Unit,
     errorMessage: String = "",
     isPassword: Boolean = false
 ) {
@@ -75,13 +76,14 @@ fun CommonTextField(
             singleLine = true,
             maxLines = 1,
             value = value,
-            onValueChange = onValueChanged,
+            onValueChange = onValueChange,
             visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = 15.dp, if(isPassword) 0.dp else 15.dp),
+                        .fillMaxWidth()
+                        .background(Color.Transparent, shape = CircleShape)
+                        .padding(start = 15.dp, end = if(isPassword) 0.dp else 15.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(modifier = Modifier.weight(1f)) {

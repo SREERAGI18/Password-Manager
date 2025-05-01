@@ -28,11 +28,11 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @Composable
-fun AddAccountSheet(
+fun AccountSheet(
     isEditMode:Boolean,
     entry: PasswordEntry?,
     onSubmit: (String, String, String) -> Unit,
-    onUpdateClick: (String) -> Unit
+    onUpdateClick: (String, String, String) -> Unit,
 ) {
     var accountType by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -57,7 +57,7 @@ fun AddAccountSheet(
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         CommonTextField(
             value = accountType,
-            onValueChanged = {
+            onValueChange = {
                 accountType = it
                 errorAccountType = ""
             },
@@ -68,7 +68,7 @@ fun AddAccountSheet(
         Spacer(modifier = Modifier.height(10.dp))
         CommonTextField(
             value = username,
-            onValueChanged = {
+            onValueChange = {
                 username = it
                 errorUsername = ""
             },
@@ -79,7 +79,7 @@ fun AddAccountSheet(
         Spacer(modifier = Modifier.height(10.dp))
         CommonTextField(
             value = password,
-            onValueChanged = {
+            onValueChange = {
                 password = it
                 errorPassword = ""
             },
@@ -104,7 +104,7 @@ fun AddAccountSheet(
                 }
 
                 if(isEditMode) {
-                    onUpdateClick(password)
+                    onUpdateClick(accountType, username, password)
                 } else {
                     onSubmit(accountType, username, password)
                 }

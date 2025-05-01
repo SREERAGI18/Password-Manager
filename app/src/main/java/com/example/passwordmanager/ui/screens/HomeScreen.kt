@@ -3,9 +3,7 @@ package com.example.passwordmanager.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -135,7 +133,10 @@ fun HomeScreen() {
 
     if (showBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
+            onDismissRequest = {
+                showBottomSheet = false
+                isEditMode = false
+            },
             sheetState = sheetState,
             containerColor = LightGrey,
             shape = RoundedCornerShape(
@@ -158,18 +159,24 @@ fun HomeScreen() {
 //                        )
 //                )
                 if (isAddMode) {
-                    AddAccountSheet(
+                    AccountSheet(
                         isEditMode = isEditMode,
                         entry = selectedEntry,
                         onSubmit = { account, username, password ->
                             viewModel.addPassword(account, username, password)
                             coroutineScope.launch { sheetState.hide() }
                             showBottomSheet = false
+                            isEditMode = false
                         },
-                        onUpdateClick = { newPass ->
-                            viewModel.updatePassword(selectedEntry, newPass)
+                        onUpdateClick = { account, username, password ->
+                            val newEntry = selectedEntry?.copy(
+                                account = account,
+                                username = username
+                            )
+                            viewModel.updatePassword(newEntry, password)
                             coroutineScope.launch { sheetState.hide() }
                             showBottomSheet = false
+                            isEditMode = false
                         }
                     )
                 } else {

@@ -33,8 +33,6 @@ fun AccountDetailsSheet(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val decryptedPassword = decrypt(entry.encryptedPassword, entry.iv)
-
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text(
             text = "Account Details",
@@ -48,7 +46,7 @@ fun AccountDetailsSheet(
         Text(
             text = "Account Type",
             style = TextStyles.Roboto.medium(
-                size = 11,
+                size = 12,
                 color = SecondaryTextColor
             )
         )
@@ -65,7 +63,7 @@ fun AccountDetailsSheet(
         Text(
             text = "Username/ Email",
             style = TextStyles.Roboto.medium(
-                size = 11,
+                size = 12,
                 color = SecondaryTextColor
             )
         )
@@ -82,7 +80,7 @@ fun AccountDetailsSheet(
         Text(
             text = "Password",
             style = TextStyles.Roboto.medium(
-                size = 11,
+                size = 12,
                 color = SecondaryTextColor
             )
         )
