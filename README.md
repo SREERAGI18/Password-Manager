@@ -47,4 +47,4 @@ A secure and modern Password Manager Android app built using **Jetpack Compose**
    
 2. **Switch branch:**
    ```bash
-   git checkout development
+   git checkout master
